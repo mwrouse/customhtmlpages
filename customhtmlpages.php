@@ -51,7 +51,7 @@ class CustomHTMLPages extends Module
 
         $routes = [];
 
-        foreach ($pages as $page)
+        foreach ($pages as $i => $page)
         {
             $result = $this->getRouteForPage($page, $pages);
             $routes[$this->generateRouteKey($page)] = $result;
@@ -107,29 +107,33 @@ class CustomHTMLPages extends Module
     /**
      * Returns the route
      */
-    private function getRouteForPage($page, $allPages)
+    private function getRouteForPage(&$page, &$allPages)
     {
         $rule = $this->getRouteRuleForPage($page, $allPages);
+        $page['full_url'] = $rule;
 
         $route = [
             'controller' => 'page',
-            'rule' => $rule,
-            'keywords' => [],
+            'rule' => $rule.'{e:/}',
+            'keywords' => [
+                'e' => ['regexp' => '']
+            ],
             'params' => [
                 'fc' => 'module',
                 'module' => $this->name,
                 'page' => $page,
-                'rule' => $rule,
+                'pageId' => $page['id_page'],
             ]
         ];
 
         return $route;
     }
 
+
     /**
      * Returns the route rule for a page (recurses through parents)
      */
-    private function getRouteRuleForPage($page, $allPages)
+    private function getRouteRuleForPage(&$page, &$allPages)
     {
         if (is_null($page))
             return '';
@@ -154,7 +158,8 @@ class CustomHTMLPages extends Module
             }
         }
 
-        return $prefix.$page['url'];
+        $url = $prefix.$page['url'];
+        return $url;
     }
 
 
