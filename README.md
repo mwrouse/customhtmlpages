@@ -5,3 +5,4 @@ Create custom HTML pages with custom URLs.
 
 It's like the CMS module, but better since you are not restricted to the template defined by the theme.
 
+You can even use Smarty on the pages!
