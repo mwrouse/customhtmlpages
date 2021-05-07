@@ -7,6 +7,8 @@ class CustomHtmlPagesPageModuleFrontController extends ModuleFrontController
 {
     public function initContent()
     {
+        parent::initContent();
+
         $page = Tools::getValue('page');
         if (!isset($page) || is_null($page))
         {
