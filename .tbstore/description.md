@@ -1,0 +1,1 @@
+Add 100% custom HTML pages to your shop.
