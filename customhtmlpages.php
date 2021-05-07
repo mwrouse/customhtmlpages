@@ -131,16 +131,19 @@ class CustomHTMLPages extends Module
      */
     private function getRouteRuleForPage($page, $allPages)
     {
+        if (is_null($page))
+            return '';
+
         $prefix = '';
 
-        if (!is_null($page['parent']))
+        if (array_key_exists('parent', $page) && !is_null($page['parent']))
         {
             $parent = null;
             foreach ($allPages as $p)
             {
                 if ($p['id_page'] == $page['parent'])
                 {
-                    $parent = $p['id_page'];
+                    $parent = $p;
                     break;
                 }
             }
