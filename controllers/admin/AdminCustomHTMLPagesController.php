@@ -91,6 +91,7 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
      */
     public function renderForm()
     {
+        $lang = $this->context->language;
 
         $inputs[] = [
             'type'   => 'switch',
@@ -176,10 +177,7 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
 
 
         $allPages = $this->module->getAllHTMLPages(true);
-        array_unshift($allPages, [
-            'id_page' => '0',
-            'name' => '---'
-        ]);
+        array_unshift($allPages, '-');
 
 
         if ($this->display == 'edit') {
@@ -194,7 +192,7 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
             $this->fields_value = $this->module->getHTMLPage($pageId);
 
             foreach ($allPages as $i => $p) {
-                if ($p['id_page'] == $pageId) {
+                if ($p != '-' && $p['id_page'] == $pageId) {
                     unset($allPages[$i]);
                     break;
                 }
@@ -215,6 +213,22 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
                 'id' => 'id_page',
                 'name' => 'name'
             ]
+        ];
+
+        // List of Products
+        $products = Product::getProducts($lang->id, 0, 1000, 'id_product', 'ASC');
+        array_unshift($products, '-');
+        $inputs[] = [
+            'type' => 'select',
+            'label' => $this->l('Products ($product or $products)'),
+            'name' => 'id_products',
+            'multiple' => true,
+            'options' => [
+                'query' => $products,
+                'id' => 'id_product',
+                'name' => 'name'
+            ],
+            'hint'     => $this->l('This will populate $products. If only one is selected then $product will be populated'),
         ];
 
 
@@ -288,6 +302,7 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
             $url = Tools::getValue('url');
             $parent = Tools::getValue('id_parent');
             $style = Tools::getValue('style');
+            $products = Tools::getValue('id_products', []);
 
             $result = Db::getInstance()->insert(
                 $this->module->table_name,
@@ -297,7 +312,8 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
                     'active' => $active,
                     'url' => $url,
                     'style' => pSQL($style, true),
-                    'id_parent' => $parent
+                    'id_parent' => $parent,
+                    'id_products' => implode(',', $products),
                 ]
             );
 
@@ -366,6 +382,7 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
             $url = Tools::getValue('url');
             $parent = Tools::getValue('id_parent');
             $style = Tools::getValue('style');
+            $products = Tools::getValue('id_products', []);
 
             $result = Db::getInstance()->update($this->module->table_name,
                 [
@@ -373,7 +390,8 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
                     'active' => $active,
                     'url' => $url,
                     'style' => pSQL($style, true),
-                    'id_parent' => $parent
+                    'id_parent' => $parent,
+                    'id_products' => implode(',', $products),
                 ],
                 'id_page ='. (int)$pageId
             );

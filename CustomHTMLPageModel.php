@@ -13,6 +13,8 @@ class CustomHTMLPageModel extends ObjectModel
 
     public $active = 1;
 
+    public $products = [];
+
     public $parent = null; // Reference
     public $children = []; // Array of references
 
@@ -36,6 +38,8 @@ class CustomHTMLPageModel extends ObjectModel
         $this->active = $raw['active'];
         $this->link_rewrite = $raw['url'];
         $this->url = $raw['url'];
+
+        $this->products = (is_null($raw['id_products']) || empty($raw['id_products'])) ? [] : explode(',', $raw['id_products']);
 
         $this->css = (array_key_exists('style', $raw)) ? $raw['style'] : null;
 
