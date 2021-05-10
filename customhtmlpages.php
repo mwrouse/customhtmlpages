@@ -42,6 +42,7 @@ class CustomHTMLPages extends Module
         $this->description = $this->l('Add custom HTML Pages to your store');
     }
 
+
     /**
      * Registers all of the routes for all of the pages
      */
@@ -109,7 +110,7 @@ class CustomHTMLPages extends Module
     /**
      * Returns the route
      */
-    private function getRouteForPage(&$page, &$allPages)
+    public function getRouteForPage(&$page, &$allPages)
     {
         $rule = $this->getRouteRuleForPage($page, $allPages);
         $page['full_url'] = $rule;
