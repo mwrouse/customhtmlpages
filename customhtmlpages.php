@@ -142,6 +142,7 @@ class CustomHTMLPages extends Module
         }
     }
 
+
     /**
      * Returns a single page as a class (for use in the page.php file)
      */
@@ -255,7 +256,7 @@ class CustomHTMLPages extends Module
             'id_page' => $page['id_page'],
             'name' => $page['name'],
             'url' => $page['url'],
-            'parent' => (!is_null($page['parent'])) ? $this->getHTMLPage($page['parent']) : null,
+            'id_parent' => $page['id_parent'],
             'active' => $page['active'],
             'meta_title' => $page['meta_title'],
             'meta_title_lang' => [

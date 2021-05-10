@@ -110,22 +110,25 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
         $inputs[] = [
             'type' => 'text',
             'label' => $this->l('Meta Title'),
-            'name' => 'meta_title',
+            'name' => 'meta_title_lang',
             'required' => true,
             'id' => 'name',
+            'lang' => true,
             'class' => 'copyMeta2friendlyURL',
             'hint'     => $this->l('Invalid characters:').' &lt;&gt;;=#{}',
         ];
         $inputs[] = [
             'type' => 'text',
             'label' => $this->l('Meta Description'),
-            'name' => 'meta_description',
+            'name' => 'meta_description_lang',
+            'lang' => true,
             'hint'     => $this->l('Invalid characters:').' &lt;&gt;;=#{}',
         ];
         $inputs[] = [
             'type' => 'tags',
             'label' => $this->l('Meta Keywords'),
-            'name' => 'meta_keywords',
+            'name' => 'meta_keywords_lang',
+            'lang' => true,
             'hint'  => [
                 $this->l('To add "tags" click in the field, write something, and then press "Enter."'),
                 $this->l('Invalid characters:').' &lt;&gt;;=#{}',
@@ -216,7 +219,72 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
      */
     public function processAdd()
     {
+        $name = Tools::getValue('name');
+        $saveAndStay = Tools::isSubmit('submitEditCustomHTMLPageAndStay');
 
+        $shop = $this->context->shop->id;
+
+        $pageId = null;
+
+        if (!$name || !Validate::isGenericName($name)) {
+            $this->_errors[] = $this->l('Invalid Name');
+        }
+        else {
+            $active = Tools::getValue('active');
+            $url = Tools::getValue('url');
+
+            $result = Db::getInstance()->insert(
+                $this->module->table_name,
+                [
+                    'name' => $name,
+                    'id_shop' => $shop,
+                    'active' => $active,
+                    'url' => $url,
+                ]
+            );
+
+            if (!result) {
+                $this->_errors[] = $this->l("Error while adding new Custom HTML Page, please try again.");
+            }
+            else {
+                $pageId = Db::getInstance()->Insert_ID();
+
+                foreach ($this->getLanguages() as $lang) {
+                    $content = Tools::getValue('content_lang_' . $lang['id_lang']);
+                    $metaTitle = Tools::getValue('meta_title_lang_'.$lang['id_lang']);
+                    $metaDesc = Tools::getValue('meta_description_lang_'.$lang['id_lang']);
+                    $metaKeywords = Tools::getValue('meta_keywords_lang_'.$lang['id_lang']);
+
+                    $result =Db::getInstance()->insert(
+                        $this->module->table_lang,
+                        [
+                            'id_page' => (int)$pageId,
+                            'id_lang' => $lang['id_lang'],
+                            'id_shop' => $shop,
+                            'meta_title' => $metaTitle,
+                            'meta_description' => $metaDesc,
+                            'meta_keywords' => $metaKeywords,
+                            'content' => $content
+                        ]
+                    );
+
+                    if (!$result) {
+                        $this->_errors[] = $this->l('Error when adding new Custom HTML Page content');
+                    }
+                }
+            }
+        }
+
+
+        if (empty($this->_errors)) {
+            if (!$saveAndStay && $pageId != null) {
+                $this->redirect_after = static::$currentIndex.'&conf=4&token='.$this->token;
+            }
+            else {
+                // Have to go to the edit page now
+                $this->redirect_after = static::$currentIndex . '&configure=&id_page='. $pageId . '&update'.$this->className.'&token=' . $this->token;
+            }
+        }
     }
 
 
@@ -228,6 +296,8 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
         $pageId = Tools::getValue('id_page');
         $saveAndStay = Tools::isSubmit('submitEditCustomHTMLPageAndStay');
 
+        $shop = $this->context->shop->id;
+
         $name = Tools::getValue('name');
 
         if (!$name || !Validate::isGenericName($name)) {
@@ -235,6 +305,70 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
         }
         else {
             $active = Tools::getValue('active');
+            $url = Tools::getValue('url');
+
+            $result = Db::getInstance()->update($this->module->table_name,
+                [
+                    'name' => $name,
+                    'active' => $active,
+                    'url' => $url,
+                ],
+                'id_page ='. (int)$pageId
+            );
+
+            if (!$result) {
+                $this->_errors[] = $this->l('Error while updating Custom HTML Page Name and Status');
+            }
+            else {
+                foreach ($this->getLanguages() as $lang) {
+                    $content = Tools::getValue('content_lang_' . $lang['id_lang']);
+                    $metaTitle = Tools::getValue('meta_title_lang_'.$lang['id_lang']);
+                    $metaDesc = Tools::getValue('meta_description_lang_'.$lang['id_lang']);
+                    $metaKeywords = Tools::getValue('meta_keywords_lang_'.$lang['id_lang']);
+
+                    $isLangAdded = Db::getInstance()->getValue('SELECT id_page FROM '._DB_PREFIX_.$this->module->table_lang.' WHERE (id_page='.(int)$pageId.' AND id_lang='.$lang['id_lang'].' AND id_shop='.$shop.')');
+                    if (!$isLangAdded) {
+                        Db::getInstance()->insert(
+                            $this->module->table_lang,
+                            [
+                                'id_page' => (int)$pageId,
+                                'id_lang' => $lang['id_lang'],
+                                'id_shop' => $shop,
+                                'meta_title' => $metaTitle,
+                                'meta_description' => $metaDesc,
+                                'meta_keywords' => $metaKeywords,
+                                'content' => $content
+                            ]
+                        );
+                    }
+                    else {
+                        $result = Db::getInstance()->update($this->module->table_lang,
+                            [
+                                'id_lang' => $lang['id_lang'],
+                                'id_shop' => $shop,
+                                'meta_title' => $metaTitle,
+                                'meta_description' => $metaDesc,
+                                'meta_keywords' => $metaKeywords,
+                                'content' => $content
+                            ],
+                            'id_page ='. (int)$pageId
+                        );
+
+                        if (!$result) {
+                            $this->_errors[] = $this->l('Error while updating Custom HTML Page Content');
+                        }
+                    }
+                }
+            }
+
+            if (empty($this->_errors)) {
+                if (!$saveAndStay) {
+                    $this->redirect_after = static::$currentIndex.'&conf=4&token='.$this->token;
+                }
+                else {
+                    $this->redirect_after = static::$currentIndex . '&configure=&id_page='. $pageId . '&update'.$this->className.'&token=' . $this->token;
+                }
+            }
         }
     }
 
@@ -262,6 +396,7 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
         $pageId = Tools::getValue('id_page');
 
         Db::getInstance()->delete($this->module->table_name, 'id_page='.$pageId);
+        Db::getInstance()->delete($this->module->table_lang, 'id_page='.$pageId);
 
         $this->redirect_after = static::$currentIndex.'&conf=1&token='.$this->token;
     }
