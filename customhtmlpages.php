@@ -72,7 +72,14 @@ class CustomHTMLPages extends Module
      */
     public function hookDisplayBackOfficeHeader()
     {
-        $this->context->controller->addCSS($this->_path . 'css/backoffice.css', 'all');
+        $this->context->controller->addCSS($this->_path . 'css/customhtmlpages.css', 'all');
+        $this->context->controller->addJS($this->_path . 'js/customhtmlpages.js');
+
+        $allPages = $this->getAllHTMLPages(true);
+
+        Media::addJsDef([
+            'allCustomHTMLPages' => $allPages
+        ]);
     }
 
 

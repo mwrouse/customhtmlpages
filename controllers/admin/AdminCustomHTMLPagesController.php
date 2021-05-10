@@ -173,7 +173,7 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
 
         $allPages = $this->module->getAllHTMLPages(true);
         array_unshift($allPages, [
-            'id_page' => '--',
+            'id_page' => '0',
             'name' => '---'
         ]);
 
