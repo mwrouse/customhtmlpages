@@ -144,11 +144,17 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
         ];
 
         $inputs[] = [
-            'type'  => 'textarea',
+            'type'  => 'code',
+            'mode' => 'html',
             'label' => $this->l('Content'),
             'name'  => 'content_lang',
             'lang'  => true,
             'autoload_rte' => true,
+            'id' => 'content',
+            'enableBasicAutocompletion' => true,
+            'enableSnippets' => true,
+            'enableLiveAutocompletion' => true,
+            'maxLines' => 70,
         ];
 
         $allPages = $this->module->getAllHTMLPages(true);
@@ -175,7 +181,6 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
                     break;
                 }
             }
-
         }
         else {
             $title = $this->l('New Page');
