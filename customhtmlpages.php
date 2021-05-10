@@ -62,7 +62,7 @@ class CustomHTMLPages extends Module
             $result = $this->getRouteForPage($page);
             $routes[$this->generateRouteKey($page)] = $result;
         }
-        error_log(print_r($routes, true));
+
         return $routes;
     }
 
@@ -300,7 +300,7 @@ class CustomHTMLPages extends Module
         {
             $pageClass = $classesById[$page['id_page']];
 
-            if (array_key_exists('id_parent', $page) && !is_null($page['id_parent']))
+            if (array_key_exists('id_parent', $page) && !is_null($page['id_parent']) && $page['id_parent'] != 0)
             {
                 $parent = $classesById[$page['id_parent']];
                 $parent->addChild($pageClass);
@@ -418,7 +418,7 @@ class CustomHTMLPages extends Module
                     `id_lang` INT( 12 ) NOT NULL,
                     `id_shop` INT( 12 ) NOT NULL DEFAULT 1,
                     `name` VARCHAR( 255 ) NOT NULL,
-                    `id_parent` INT ( 12),
+                    `id_parent` INT ( 12 ) DEFAULT NULL,
                     `url` VARCHAR( 128 ) NOT NULL,
                     `active` TINYINT(1) NOT NULL DEFAULT 1,
                     PRIMARY KEY (  `id_page` )

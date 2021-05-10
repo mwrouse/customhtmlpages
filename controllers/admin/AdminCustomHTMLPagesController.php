@@ -87,6 +87,7 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
      */
     public function renderForm()
     {
+
         $inputs[] = [
             'type'   => 'switch',
             'label'  => $this->l("Active"),
@@ -141,6 +142,7 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
             'required' => true,
             'hint'     => $this->l('Only letters and the hyphen (-) character are allowed.'),
         ];
+
         $inputs[] = [
             'type'  => 'textarea',
             'label' => $this->l('Content'),
@@ -149,6 +151,13 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
             'autoload_rte' => true,
         ];
 
+        $allPages = $this->module->getAllHTMLPages(true);
+        array_unshift($allPages, [
+            'id_page' => '--',
+            'name' => '---'
+        ]);
+
+
         if ($this->display == 'edit') {
             $inputs[] = [
                 'type' => 'hidden',
@@ -156,13 +165,35 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
             ];
             $title = $this->l('Edit Page');
             $action = 'submitEditCustomHTMLPage';
-            $this->fields_value = $this->module->getHTMLPage(Tools::getValue('id_page'));
+
+            $pageId = Tools::getValue('id_page');
+            $this->fields_value = $this->module->getHTMLPage($pageId);
+
+            foreach ($allPages as $i => $p) {
+                if ($p['id_page'] == $pageId) {
+                    unset($allPages[$i]);
+                    break;
+                }
+            }
 
         }
         else {
             $title = $this->l('New Page');
             $action = 'submitAddCustomHTMLPage';
         }
+
+        // Parent select
+        $inputs[] = [
+            'type' => 'select',
+            'label' => $this->l('Parent'),
+            'name' => 'id_parent',
+            'options' => [
+                'query' => $allPages,
+                'id' => 'id_page',
+                'name' => 'name'
+            ]
+        ];
+
 
         $this->fields_form = [
             'legend' => [
@@ -232,6 +263,7 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
         else {
             $active = Tools::getValue('active');
             $url = Tools::getValue('url');
+            $parent = Tools::getValue('id_parent');
 
             $result = Db::getInstance()->insert(
                 $this->module->table_name,
@@ -240,6 +272,7 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
                     'id_shop' => $shop,
                     'active' => $active,
                     'url' => $url,
+                    'id_parent' => $parent
                 ]
             );
 
@@ -306,12 +339,14 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
         else {
             $active = Tools::getValue('active');
             $url = Tools::getValue('url');
+            $parent = Tools::getValue('id_parent');
 
             $result = Db::getInstance()->update($this->module->table_name,
                 [
                     'name' => $name,
                     'active' => $active,
                     'url' => $url,
+                    'id_parent' => $parent
                 ],
                 'id_page ='. (int)$pageId
             );
