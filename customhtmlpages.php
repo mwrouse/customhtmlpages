@@ -61,10 +61,12 @@ class CustomHTMLPages extends Module
     }
 
 
-
+    /**
+     * Add CSS/JS to the back office
+     */
     public function hookDisplayBackOfficeHeader()
     {
-
+        $this->context->controller->addCSS($this->_path . 'css/backoffice.css', 'all');
     }
 
 
