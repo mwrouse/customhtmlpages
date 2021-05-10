@@ -212,7 +212,7 @@ class CustomHTMLPages extends Module
     /**
      * Returns the route rule for a page (recurses through parents)
      */
-    private function getRouteRuleForPage(&$page, &$allPages)
+    public function getFullURLForPage(&$page, &$allPages)
     {
         if (is_null($page))
             return '';
@@ -233,7 +233,7 @@ class CustomHTMLPages extends Module
 
             if (!is_null($parent))
             {
-                $prefix = $this->getRouteRuleForPage($parent, $allPages).'/';
+                $prefix = $this->getFullURLForPage($parent, $allPages).'/';
             }
         }
 

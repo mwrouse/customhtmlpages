@@ -41,6 +41,10 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
         if (!$pages)
             return $content;
 
+        foreach ($pages as $i => $page) {
+            $pages[$i]['full_url'] = $this->module->getFullURLForPage($pages[$i], $pages);
+        }
+
         $fieldsList = [
             'id_page'  => [
                 'title'   => 'ID',
@@ -50,8 +54,8 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
             'name'      => [
                 'title'   => $this->l('Name'),
             ],
-            'url' => [
-                'title' => $this->l('URL'),
+            'full_url' => [
+                'title' => $this->l('Full URL'),
             ],
             'active'    => [
                 'title'   => $this->l('Active'),
