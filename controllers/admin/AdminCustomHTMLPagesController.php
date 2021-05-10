@@ -74,8 +74,8 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
         $helper->identifier = 'id_page';
         $helper->position_identifier = 'id_page';
         $helper->title = "Custom Pages";
-        $helper->orderBy = 'id_page';
-        $helper->orderWay = 'ASC';
+        $helper->orderBy = 'full_url';
+        $helper->orderWay = 'DESC';
         $helper->table = $this->table;
         $helper->token = Tools::getAdminTokenLite('AdminCustomHTMLPages');
         $helper->currentIndex = AdminController::$currentIndex.'&configure='.$this->name;
@@ -296,7 +296,7 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
                     'id_shop' => $shop,
                     'active' => $active,
                     'url' => $url,
-                    'style' => $style,
+                    'style' => pSQL($style, true),
                     'id_parent' => $parent
                 ]
             );
@@ -322,7 +322,7 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
                             'meta_title' => $metaTitle,
                             'meta_description' => $metaDesc,
                             'meta_keywords' => $metaKeywords,
-                            'content' => $content
+                            'content' => pSQL($content, true)
                         ]
                     );
 
@@ -372,7 +372,7 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
                     'name' => $name,
                     'active' => $active,
                     'url' => $url,
-                    'style' => $style,
+                    'style' => pSQL($style, true),
                     'id_parent' => $parent
                 ],
                 'id_page ='. (int)$pageId
@@ -399,7 +399,7 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
                                 'meta_title' => $metaTitle,
                                 'meta_description' => $metaDesc,
                                 'meta_keywords' => $metaKeywords,
-                                'content' => $content
+                                'content' => pSQL($content, true)
                             ]
                         );
                     }
@@ -411,7 +411,7 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
                                 'meta_title' => $metaTitle,
                                 'meta_description' => $metaDesc,
                                 'meta_keywords' => $metaKeywords,
-                                'content' => $content
+                                'content' => pSQL($content, true)
                             ],
                             'id_page ='. (int)$pageId
                         );
