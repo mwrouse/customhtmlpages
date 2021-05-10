@@ -142,6 +142,28 @@ class CustomHTMLPages extends Module
         }
     }
 
+    /**
+     * Returns a single page as a class (for use in the page.php file)
+     */
+    public function getHTMLPageAsAClass($pageId)
+    {
+        try
+        {
+            $allPages = $this->convertToClasses($this->getAllHTMLPages());
+            foreach ($allPages as $p) {
+                if ($p->id == $pageId)
+                    return $p;
+            }
+
+            return null;
+        }
+        catch (Exception $e)
+        {
+            Logger::addLog("CustomHTMLPages getHTMLPage Exception: {$e->getMessage()}");
+            return null;
+        }
+    }
+
 
     /**
      * Returns the status of a single page
@@ -286,9 +308,6 @@ class CustomHTMLPages extends Module
 
         return $classesById;
     }
-
-
-
 
 
 

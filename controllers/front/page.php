@@ -15,16 +15,8 @@ class CustomHtmlPagesPageModuleFrontController extends ModuleFrontController
             return "Custom HTML Page Not Found.";
         }
 
-        $allPages = $this->module->convertToClasses($this->module->getAllHTMLPages());
 
-        $page = null;
-
-        foreach ($allPages as $p) {
-            if ($p->id == $pageId) {
-                $page = $p;
-                break;
-            }
-        }
+        $page = $this->module->getHTMLPageAsAClass($pageId);
 
         if (is_null($page))
         {
