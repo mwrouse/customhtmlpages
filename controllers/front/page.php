@@ -5,6 +5,7 @@ if (!defined('_TB_VERSION_')) {
 
 class CustomHtmlPagesPageModuleFrontController extends ModuleFrontController
 {
+
     public function initContent()
     {
         parent::initContent();
@@ -23,11 +24,24 @@ class CustomHtmlPagesPageModuleFrontController extends ModuleFrontController
             return "Custom HTML Page Not Found";
         }
 
+        if (!is_null($page->css)) {
+            $header = $this->context->smarty->getTemplateVars('HOOK_HEADER');
+
+            $header .= '<!-- Custom HTML Page Styling -->
+            <style>' . $page->css . '</style>';
+
+            $this->context->smarty->assign([
+                'HOOK_HEADER' => $header
+            ]);
+        }
+
+
         $this->context->smarty->assign([
             'meta_title' => $page->meta_title . ' - ' . $this->context->shop->name,
             'meta_description' => $page->meta_description,
             'meta_keywords' => $page->meta_keywords,
-            'page' => $page
+            'page' => $page,
+
         ]);
 
         return $this->setTemplate('page.tpl');

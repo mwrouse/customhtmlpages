@@ -87,7 +87,7 @@ class CustomHTMLPages extends Module
             $shop = $this->context->shop->id;
 
             $qry = (new DbQuery())
-                        ->select('t1.`id_page`, t1.`name`, t1.`id_parent`, t1.`url`, t1.`active`, t2.`meta_title`, t2.`meta_description`, t2.`meta_keywords`, t2.`content`')
+                        ->select('t1.`id_page`, t1.`name`, t1.`id_parent`, t1.`url`, t1.`style`, t1.`active`, t2.`meta_title`, t2.`meta_description`, t2.`meta_keywords`, t2.`content`')
                         ->from($this->table_name, 't1')
                         ->leftJoin($this->table_lang, 't2', 't2.`id_page`= t1.`id_page` AND t2.`id_shop`=t1.`id_shop` AND t2.`id_lang`='. $language)
                         ->orderBy('t1.`id_page`')
@@ -122,7 +122,7 @@ class CustomHTMLPages extends Module
             $shop = $this->context->shop->id;
 
             $qry = (new DbQuery())
-                        ->select('t1.`id_page`, t1.`name`, t1.`id_parent`, t1.`url`, t1.`active`, t2.`meta_title`, t2.`meta_description`, t2.`meta_keywords`, t2.`content`, t2.`id_lang`')
+                        ->select('t1.`id_page`, t1.`name`, t1.`id_parent`, t1.`url`, t1.`style`, t1.`active`, t2.`meta_title`, t2.`meta_description`, t2.`meta_keywords`, t2.`content`, t2.`id_lang`')
                         ->from($this->table_name, 't1')
                         ->leftJoin($this->table_lang, 't2', 't1.`id_page` = t2.`id_page` AND t2.`id_shop`=t1.`id_shop` AND t2.`id_lang`='. $language)
                         ->where('t1.`id_shop`='.$shop)
@@ -257,6 +257,7 @@ class CustomHTMLPages extends Module
             'name' => $page['name'],
             'url' => $page['url'],
             'id_parent' => $page['id_parent'],
+            'style' => $page['style'],
             'active' => $page['active'],
             'meta_title' => $page['meta_title'],
             'meta_title_lang' => [
@@ -420,6 +421,7 @@ class CustomHTMLPages extends Module
                     `name` VARCHAR( 255 ) NOT NULL,
                     `id_parent` INT ( 12 ) DEFAULT NULL,
                     `url` VARCHAR( 128 ) NOT NULL,
+                    `style` LONGTEXT DEFAULT NULL,
                     `active` TINYINT(1) NOT NULL DEFAULT 1,
                     PRIMARY KEY (  `id_page` )
                 ) ENGINE =' ._MYSQL_ENGINE_;

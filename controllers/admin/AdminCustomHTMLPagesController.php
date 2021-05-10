@@ -145,17 +145,31 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
 
         $inputs[] = [
             'type'  => 'code',
+            'mode' => 'css',
+            'label' => $this->l('Style'),
+            'name'  => 'style',
+            'lang'  => false,
+            //'autoload_rte' => true,
+            'id' => 'style',
+            'enableBasicAutocompletion' => true,
+            'enableSnippets' => true,
+            'enableLiveAutocompletion' => true,
+            'maxLines' => 50,
+        ];
+        $inputs[] = [
+            'type'  => 'code',
             'mode' => 'html',
             'label' => $this->l('Content'),
             'name'  => 'content_lang',
             'lang'  => true,
-            'autoload_rte' => true,
+            //'autoload_rte' => true,
             'id' => 'content',
             'enableBasicAutocompletion' => true,
             'enableSnippets' => true,
             'enableLiveAutocompletion' => true,
             'maxLines' => 70,
         ];
+
 
         $allPages = $this->module->getAllHTMLPages(true);
         array_unshift($allPages, [
@@ -269,6 +283,7 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
             $active = Tools::getValue('active');
             $url = Tools::getValue('url');
             $parent = Tools::getValue('id_parent');
+            $style = Tools::getValue('style');
 
             $result = Db::getInstance()->insert(
                 $this->module->table_name,
@@ -277,6 +292,7 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
                     'id_shop' => $shop,
                     'active' => $active,
                     'url' => $url,
+                    'style' => $style,
                     'id_parent' => $parent
                 ]
             );
@@ -345,12 +361,14 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
             $active = Tools::getValue('active');
             $url = Tools::getValue('url');
             $parent = Tools::getValue('id_parent');
+            $style = Tools::getValue('style');
 
             $result = Db::getInstance()->update($this->module->table_name,
                 [
                     'name' => $name,
                     'active' => $active,
                     'url' => $url,
+                    'style' => $style,
                     'id_parent' => $parent
                 ],
                 'id_page ='. (int)$pageId

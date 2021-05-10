@@ -20,6 +20,8 @@ class CustomHTMLPageModel extends ObjectModel
 
     public $url;
 
+    public $css;
+
     private $raw;
 
 
@@ -34,6 +36,8 @@ class CustomHTMLPageModel extends ObjectModel
         $this->active = $raw['active'];
         $this->link_rewrite = $raw['url'];
         $this->url = $raw['url'];
+
+        $this->css = (array_key_exists('style', $raw)) ? $raw['style'] : null;
 
         $this->raw = $raw;
     }
