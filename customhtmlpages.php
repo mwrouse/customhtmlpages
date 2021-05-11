@@ -157,7 +157,8 @@ class CustomHTMLPages extends Module
     {
         try
         {
-            $allPages = $this->convertToClasses($this->getAllHTMLPages());
+            $pages = $this->getAllHTMLPages();
+            $allPages = $this->convertToClasses($pages);
             foreach ($allPages as $p) {
                 if ($p->id == $pageId)
                     return $p;

@@ -341,6 +341,7 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
             $parent = Tools::getValue('id_parent');
             $style = Tools::getValue('style');
             $products = Tools::getValue('id_products_selected', []);
+            $categories = Tools::getValue('id_categories_selected', []);
 
             $result = Db::getInstance()->insert(
                 $this->module->table_name,
@@ -352,6 +353,7 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
                     'style' => pSQL($style, true),
                     'id_parent' => $parent,
                     'id_products' => implode(',', $products),
+                    'id_categories' => implode(',', $categories),
                 ]
             );
 
@@ -433,6 +435,7 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
             $parent = Tools::getValue('id_parent');
             $style = Tools::getValue('style');
             $products = Tools::getValue('id_products_selected', []);
+            $categories = Tools::getValue('id_categories_selected', []);
 
             $result = Db::getInstance()->update($this->module->table_name,
                 [
@@ -442,6 +445,7 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
                     'style' => pSQL($style, true),
                     'id_parent' => $parent,
                     'id_products' => implode(',', $products),
+                    'id_categories' => implode(',', $categories),
                 ],
                 'id_page ='. (int)$pageId
             );

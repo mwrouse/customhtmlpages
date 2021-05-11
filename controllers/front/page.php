@@ -42,48 +42,109 @@ class CustomHtmlPagesPageModuleFrontController extends ModuleFrontController
         }
 
         // Add $product or $products
-        $productId = Tools::getValue('id_product'); // From the URL
         $product = null;
-        if (isset($productId) || count($page->products) == 1)
-        {
-            $id = (count($page->products) == 1) ? $page->products[0] : $productId;
+        $products = [];
 
-            $product = $this->_GetProduct($id);
+        $productId = Tools::getValue('id_product', null); // From the URL
+        if (isset($productId) && !is_null($productId))
+        {
+            $product = $this->_GetProduct($productId);
         }
 
-        $products = [];
-        if (count($page->products) > 1) {
-
-            foreach ($page->products as $productId) {
+        if (count($page->_products) > 0)
+        {
+            foreach ($page->_products as $productId) {
                 array_push($products, $this->_GetProduct($productId));
             }
 
-            $this->context->smarty->assign([
-                'products' => $products
-            ]);
+            if (is_null($product) && count($products) == 1)
+                $product = array_shift($products);
         }
 
+        // Add $category or $categories
+        $category = null;
+        $categories = [];
+
+        $categoryId = Tools::getValue('id_category', null); // From the URL
+        if (isset($categoryId) && !is_null($categoryId))
+        {
+            $category = $this->_GetCategory($categoryId);
+        }
+
+        if (count($page->_categories) > 0)
+        {
+            foreach ($page->_categories as $categoryId) {
+                array_push($categories, $this->_GetCategory($categoryId));
+            }
+
+            if (is_null($category) && count($categories) == 1) {
+                $category = array_shift($categories);
+            }
+        }
+
+        $this->context->smarty->assign([
+            'page' => $page,
+            'product' => $product,
+            'products' => $products,
+            'category' => $category,
+            'categories' => $categories,
+        ]);
+
+        $page->meta_title = $this->eval($page->meta_title);
+        $page->meta_description = $this->eval($page->meta_description);
+        $page->meta_keywords = $this->eval($page->meta_keywords);
 
         $this->context->smarty->assign([
             'meta_title' => $page->meta_title . ' - ' . $this->context->shop->name,
             'meta_description' => $page->meta_description,
             'meta_keywords' => $page->meta_keywords,
-            'page' => $page,
-            'product' => $product,
-            'products' => $products,
         ]);
+
+        $page->content = $this->eval($page->content);
 
         return $this->setTemplate('page.tpl');
     }
 
 
-    private function _GetProduct($id)
+    private function _GetProduct($id, $loadExtra = true)
     {
         $lang = $this->context->language;
         $product = new Product($id, true, $lang->id, $this->context->shop->id, $this->context);
-        $product->attachments = $product->getAttachments($lang->id);
-        $product->features = $product->getFeatures($lang->id);
+
+        $product->id_image = $product->getCoverWs();
+
+        if ($loadExtra)
+        {
+            $product->attachments = $product->getAttachments($lang->id);
+
+            $product->features = $product->getFrontFeatures($lang->id);
+
+        }
 
         return $product;
+    }
+
+    private function _GetCategory($id)
+    {
+        $lang = $this->context->language;
+        $shop = $this->context->shop;
+
+        $category = new Category($id, $lang->id, $shop->id);
+
+        $category->subcategories = $category->getSubCategories($lang->id);
+        $category->products = $category->getProductsWs();
+
+        for($i = 0; $i < count($category->products); $i++)
+        {
+            $category->products[$i] = $this->_GetProduct($category->products[$i]['id'], false);
+        }
+
+        return $category;
+    }
+
+
+    private function eval($str)
+    {
+        return $this->context->smarty->fetch('eval:'.$str);
     }
 }

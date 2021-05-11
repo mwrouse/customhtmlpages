@@ -26,6 +26,9 @@ class CustomHTMLPageModel extends ObjectModel
 
     private $raw;
 
+    public $_products = [];
+    public $_categories = [];
+
 
     public function __construct($raw)
     {
@@ -39,7 +42,9 @@ class CustomHTMLPageModel extends ObjectModel
         $this->link_rewrite = $raw['url'];
         $this->url = $raw['url'];
 
-        //$this->products = (is_null($raw['id_products']) || empty($raw['id_products'])) ? [] : explode(',', $raw['id_products']);
+        $this->_products = (is_null($raw['id_products']) || empty($raw['id_products'])) ? [] : explode(',', $raw['id_products']);
+        $this->_categories = (is_null($raw['id_categories']) || empty($raw['id_categories'])) ? [] : explode(',', $raw['id_categories']);
+
 
         $this->css = (array_key_exists('style', $raw)) ? $raw['style'] : null;
 
