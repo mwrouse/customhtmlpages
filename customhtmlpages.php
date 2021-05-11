@@ -13,10 +13,6 @@ class CustomHTMLPages extends Module
 {
     protected $hooksList = [];
 
-    protected $_tabs = [
-        'CustomHTMLPages' => 'HTML Pages', // class => label
-    ];
-
     public function __construct()
     {
         $this->name = 'customhtmlpages';
@@ -364,10 +360,6 @@ class CustomHTMLPages extends Module
         /* This is the main tab, all others will be children of this */
         $allLangs = Language::getLanguages();
         $idTab = $this->_createSingleTab(0, 'Admin'.$this->className, $this->displayName, $allLangs);
-
-        foreach ($this->_tabs as $class => $name) {
-              $this->_createSingleTab($idTab, $class, $name, $allLangs);
-        }
 
         return true;
     }
