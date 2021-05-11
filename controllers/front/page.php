@@ -47,18 +47,22 @@ class CustomHtmlPagesPageModuleFrontController extends ModuleFrontController
         if (isset($productId) || count($page->products) == 1)
         {
             $id = (count($page->products) == 1) ? $page->products[0] : $productId;
-            error_log(print_r($page->products, true));
-            error_log('howdy3');
+
             $this->context->smarty->assign([
                 'product' => $this->_GetProduct($id)
             ]);
         }
+
         if (count($page->products) > 1) {
             $products = [];
 
             foreach ($page->products as $productId) {
                 array_push($products, $this->_GetProduct($productId));
             }
+
+            $this->context->smarty->assign([
+                'products' => $products
+            ]);
         }
 
 
@@ -68,7 +72,6 @@ class CustomHtmlPagesPageModuleFrontController extends ModuleFrontController
             'meta_keywords' => $page->meta_keywords,
             'page' => $page,
             'categories' => Category::getCategories($lang->id, true, false),
-            'products' => $products
         ]);
 
         return $this->setTemplate('page.tpl');

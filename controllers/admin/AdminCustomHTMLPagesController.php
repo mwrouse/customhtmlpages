@@ -307,7 +307,7 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
             $result = Db::getInstance()->insert(
                 $this->module->table_name,
                 [
-                    'name' => $name,
+                    'name' => pSQL($name),
                     'id_shop' => $shop,
                     'active' => $active,
                     'url' => $url,
@@ -335,9 +335,9 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
                             'id_page' => (int)$pageId,
                             'id_lang' => $lang['id_lang'],
                             'id_shop' => $shop,
-                            'meta_title' => $metaTitle,
-                            'meta_description' => $metaDesc,
-                            'meta_keywords' => $metaKeywords,
+                            'meta_title' => pSQL($metaTitle),
+                            'meta_description' => pSQL($metaDesc),
+                            'meta_keywords' => pSQL($metaKeywords),
                             'content' => pSQL($content, true)
                         ]
                     );
@@ -386,7 +386,7 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
 
             $result = Db::getInstance()->update($this->module->table_name,
                 [
-                    'name' => $name,
+                    'name' => pSQL($name),
                     'active' => $active,
                     'url' => $url,
                     'style' => pSQL($style, true),
@@ -414,9 +414,9 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
                                 'id_page' => (int)$pageId,
                                 'id_lang' => $lang['id_lang'],
                                 'id_shop' => $shop,
-                                'meta_title' => $metaTitle,
-                                'meta_description' => $metaDesc,
-                                'meta_keywords' => $metaKeywords,
+                                'meta_title' => pSQL($metaTitle),
+                                'meta_description' => pSQL($metaDesc),
+                                'meta_keywords' => pSQL($metaKeywords),
                                 'content' => pSQL($content, true)
                             ]
                         );
@@ -426,9 +426,9 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
                             [
                                 'id_lang' => $lang['id_lang'],
                                 'id_shop' => $shop,
-                                'meta_title' => $metaTitle,
-                                'meta_description' => $metaDesc,
-                                'meta_keywords' => $metaKeywords,
+                                'meta_title' => pSQL($metaTitle),
+                                'meta_description' => pSQL($metaDesc),
+                                'meta_keywords' => pSQL($metaKeywords),
                                 'content' => pSQL($content, true)
                             ],
                             'id_page ='. (int)$pageId
