@@ -43,18 +43,16 @@ class CustomHtmlPagesPageModuleFrontController extends ModuleFrontController
 
         // Add $product or $products
         $productId = Tools::getValue('id_product'); // From the URL
-
+        $product = null;
         if (isset($productId) || count($page->products) == 1)
         {
             $id = (count($page->products) == 1) ? $page->products[0] : $productId;
 
-            $this->context->smarty->assign([
-                'product' => $this->_GetProduct($id)
-            ]);
+            $product = $this->_GetProduct($id);
         }
 
+        $products = [];
         if (count($page->products) > 1) {
-            $products = [];
 
             foreach ($page->products as $productId) {
                 array_push($products, $this->_GetProduct($productId));
@@ -71,7 +69,8 @@ class CustomHtmlPagesPageModuleFrontController extends ModuleFrontController
             'meta_description' => $page->meta_description,
             'meta_keywords' => $page->meta_keywords,
             'page' => $page,
-            'categories' => Category::getCategories($lang->id, true, false),
+            'product' => $product,
+            'products' => $products,
         ]);
 
         return $this->setTemplate('page.tpl');

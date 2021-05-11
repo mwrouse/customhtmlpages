@@ -25,6 +25,7 @@ class CustomHTMLPages extends Module
         $this->need_instance = 0;
         $this->table_name = 'customhtmlpages';
         $this->table_lang = $this->table_name . '_lang';
+        $this->table_related = $this->table_name .'_relatedPages';
         $this->bootstrap = true;
 
         $this->ps_versions_compliancy = ['min' => '1.6', 'max' => '1.6.99.99'];
@@ -90,7 +91,7 @@ class CustomHTMLPages extends Module
             $shop = $this->context->shop->id;
 
             $qry = (new DbQuery())
-                        ->select('t1.`id_page`, t1.`name`, t1.`id_parent`, t1.`url`, t1.`style`, t1.`id_products`, t1.`active`, t2.`meta_title`, t2.`meta_description`, t2.`meta_keywords`, t2.`content`')
+                        ->select('t1.`id_page`, t1.`name`, t1.`id_parent`, t1.`url`, t1.`style`, t1.`id_products`, t1.`id_categories`, t1.`active`, t2.`meta_title`, t2.`meta_description`, t2.`meta_keywords`, t2.`content`')
                         ->from($this->table_name, 't1')
                         ->leftJoin($this->table_lang, 't2', 't2.`id_page`= t1.`id_page` AND t2.`id_shop`=t1.`id_shop` AND t2.`id_lang`='. $language)
                         ->orderBy('t1.`id_page`')
@@ -121,11 +122,14 @@ class CustomHTMLPages extends Module
     {
         try
         {
+            if ($pageId == 'new')
+                return $this->getDefaultValues();
+
             $language = $this->context->language->id;
             $shop = $this->context->shop->id;
 
             $qry = (new DbQuery())
-                        ->select('t1.`id_page`, t1.`name`, t1.`id_parent`, t1.`url`, t1.`style`, t1.`id_products`, t1.`active`, t2.`meta_title`, t2.`meta_description`, t2.`meta_keywords`, t2.`content`, t2.`id_lang`')
+                        ->select('t1.`id_page`, t1.`name`, t1.`id_parent`, t1.`url`, t1.`style`, t1.`id_products`, t1.`id_categories`, t1.`active`, t2.`meta_title`, t2.`meta_description`, t2.`meta_keywords`, t2.`content`, t2.`id_lang`')
                         ->from($this->table_name, 't1')
                         ->leftJoin($this->table_lang, 't2', 't1.`id_page` = t2.`id_page` AND t2.`id_shop`=t1.`id_shop` AND t2.`id_lang`='. $language)
                         ->where('t1.`id_shop`='.$shop)
@@ -182,6 +186,76 @@ class CustomHTMLPages extends Module
         return $page['active'];
     }
 
+
+
+    /**
+     * Returns all of the pages that are related to a certain page
+     */
+    private function getRelatedPagesForPage($pageId)
+    {
+        try
+        {
+            $language = $this->context->language->id;
+            $shop = $this->context->shop->id;
+
+            $qry = (new DbQuery())
+                        ->select('id_related')
+                        ->from($this->table_related)
+                        ->where('`id_parent`='.$pageId);
+
+            $result = Db::getInstance()->ExecuteS($qry);
+
+            if (!$result)
+                return [];
+
+            $final = [];
+            foreach ($result as $res)
+            {
+                array_push($final, $res['id_related']);
+            }
+            return $final;
+        }
+        catch (Exception $e)
+        {
+            Logger::addLog("CustomHTMLPages getRelatedPagesForPage Exception: {$e->getMessage()}");
+            return null;
+        }
+    }
+
+
+    /**
+     * Opposite of getRelatedPages, returns pages that this page is marked to be related to
+     */
+    private function getPagesThisPageIsRelatedTo($pageId)
+    {
+        try
+        {
+            $language = $this->context->language->id;
+            $shop = $this->context->shop->id;
+
+            $qry = (new DbQuery())
+                        ->select('id_parent')
+                        ->from($this->table_related)
+                        ->where('`id_related`='.$pageId);
+
+            $result = Db::getInstance()->ExecuteS($qry);
+
+            if (!$result)
+                return [];
+
+            $final = [];
+            foreach ($result as $res)
+            {
+                array_push($final, $res['id_parent']);
+            }
+            return $final;
+        }
+        catch (Exception $e)
+        {
+            Logger::addLog("CustomHTMLPages getPagesThisPageIsRelatedTo Exception: {$e->getMessage()}");
+            return null;
+        }
+    }
 
     /**
      * Returns the route
@@ -256,13 +330,16 @@ class CustomHTMLPages extends Module
         $lang = $this->context->language->id;
 
         $tmp = [
+            'id' => $page['id_page'],
             'id_page' => $page['id_page'],
             'name' => $page['name'],
             'url' => $page['url'],
             'id_parent' => $page['id_parent'],
             'style' => $page['style'],
             'active' => $page['active'],
-            'id_products[]' => (is_null($page['id_products']) || empty($page['id_products'])) ? [] : explode(',', $page['id_products']),
+            'id_products' => $this->explode($page['id_products']),
+            'id_categories' => $this->explode($page['id_categories']),
+            'id_relatedTo' => $this->getPagesThisPageIsRelatedTo($page['id_page']),
             'meta_title' => $page['meta_title'],
             'meta_title_lang' => [
                 $lang => $page['meta_title']
@@ -285,6 +362,33 @@ class CustomHTMLPages extends Module
     }
 
 
+    /**
+     * Default values for a new page
+     */
+    private function getDefaultValues()
+    {
+        return [
+            'id_page' => 'new',
+            'id' => 'new',
+            'name' => '',
+            'url' => '',
+            'style' => '',
+            'active' => 1,
+            'meta_title' => '',
+            'meta_description' => '',
+            'meta_keywords' => '',
+            'id_products' => [],
+            'id_categories' => [],
+            'id_relatedTo' => [],
+        ];
+    }
+
+
+    private function explode($data)
+    {
+        return (is_null($data) || empty($data)) ? [] : explode(',', $data);
+    }
+
 
     /**
      * Converts everything to a class
@@ -305,10 +409,19 @@ class CustomHTMLPages extends Module
         {
             $pageClass = $classesById[$page['id_page']];
 
+            // Add this page as a child
             if (array_key_exists('id_parent', $page) && !is_null($page['id_parent']) && $page['id_parent'] != 0)
             {
                 $parent = $classesById[$page['id_parent']];
                 $parent->addChild($pageClass);
+            }
+
+            // Mark related pages
+            $relatedPages = $this->getRelatedPagesForPage($page['id_page']);
+            foreach ($relatedPages as $relatedPage)
+            {
+                $relatedPageClass = $classesById[$relatedPage];
+                $pageClass->addRelated($relatedPageClass);
             }
         }
 
@@ -414,7 +527,7 @@ class CustomHTMLPages extends Module
      */
     private function _createDatabases()
     {
-        $sql = 'CREATE TABLE  `'._DB_PREFIX_.$this->table_name.'` (
+        /*$sql = 'CREATE TABLE  `'._DB_PREFIX_.$this->table_name.'` (
                     `id_page` INT( 12 ) AUTO_INCREMENT,
                     `id_lang` INT( 12 ) NOT NULL,
                     `id_shop` INT( 12 ) NOT NULL DEFAULT 1,
@@ -423,6 +536,7 @@ class CustomHTMLPages extends Module
                     `url` VARCHAR( 128 ) NOT NULL,
                     `style` LONGTEXT DEFAULT NULL,
                     `id_products` LONGTEXT DEFAULT NULL,
+                    `id_categories` LONGTEXT DEFAULT NULL,
                     `active` TINYINT(1) NOT NULL DEFAULT 1,
                     PRIMARY KEY (  `id_page` )
                 ) ENGINE =' ._MYSQL_ENGINE_;
@@ -435,14 +549,20 @@ class CustomHTMLPages extends Module
                     `meta_description` VARCHAR( 255 ) DEFAULT NULL,
                     `meta_keywords` VARCHAR( 255 ) DEFAULT NULL,
                     `content` LONGTEXT,
-                    PRIMARY KEY (  `id_page` )
+                    PRIMARY KEY (  `id_page`, `id_lang` )
                 ) ENGINE =' ._MYSQL_ENGINE_;
 
-        if (!Db::getInstance()->Execute($sql) || !Db::getInstance()->Execute($sql2))
+        $sql3 = 'CREATE TABLE  `'._DB_PREFIX_.$this->table_related.'` (
+                    `id_parent` INT( 12 ) NOT NULL,
+                    `id_related` INT( 12 ) NOT NULL,
+                    PRIMARY KEY (  `id_parent`, `id_related` )
+                ) ENGINE =' ._MYSQL_ENGINE_;
+
+        if (!Db::getInstance()->Execute($sql) || !Db::getInstance()->Execute($sql2) || !Db::getInstance()->Execute($sql3))
         {
             return false;
         }
-
+        */
         return true;
     }
 
@@ -451,11 +571,12 @@ class CustomHTMLPages extends Module
      */
     private function _eraseDatabases()
     {
-        if ( ! Db::getInstance()->Execute('DROP TABLE `'._DB_PREFIX_.$this->table_name.'`') ||
-            ! Db::getInstance()->Execute('DROP TABLE `'._DB_PREFIX_.$this->table_lang.'`'))
+        /*if ( ! Db::getInstance()->Execute('DROP TABLE `'._DB_PREFIX_.$this->table_name.'`') ||
+            ! Db::getInstance()->Execute('DROP TABLE `'._DB_PREFIX_.$this->table_lang.'`') ||
+            ! Db:;getInstance()->Execute('DROP TABLE`'._DB_PREFIX_.$this->table_related.'`'))
         {
             return false;
-        }
+        }*/
 
         return true;
     }

@@ -13,7 +13,7 @@ class CustomHTMLPageModel extends ObjectModel
 
     public $active = 1;
 
-    public $products = [];
+    public $related = [];
 
     public $parent = null; // Reference
     public $children = []; // Array of references
@@ -39,7 +39,7 @@ class CustomHTMLPageModel extends ObjectModel
         $this->link_rewrite = $raw['url'];
         $this->url = $raw['url'];
 
-        $this->products = (is_null($raw['id_products']) || empty($raw['id_products'])) ? [] : explode(',', $raw['id_products']);
+        //$this->products = (is_null($raw['id_products']) || empty($raw['id_products'])) ? [] : explode(',', $raw['id_products']);
 
         $this->css = (array_key_exists('style', $raw)) ? $raw['style'] : null;
 
@@ -73,6 +73,15 @@ class CustomHTMLPageModel extends ObjectModel
         array_push($this->children, $child);
         $child->parent = $this;
         $child->computeFullURL();
+    }
+
+
+    /**
+     * Adds a related page
+     */
+    public function addRelated($page)
+    {
+        array_push($this->related, $page);
     }
 
 

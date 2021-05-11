@@ -34,6 +34,33 @@ function updateURL()
 }
 
 
+function betterSwapBinding($el) {
+    $el.on('click', function(e) {
+        e.preventDefault();
+
+        var $select = $el.prev();
+        var name = $select.attr('name');
+
+        var isAdd = name.indexOf('_available[]') != -1;
+        var isRemove = name.indexOf('_selected[]') != -1;
+
+        if (!isAdd && !isRemove)
+            return;
+
+        name = (name.replaceAll('_selected[]', '')).replaceAll('_available[]', '');
+
+        var $removeFrom = $select;
+        var $addTo = $('select[name="' + (name + (isAdd ? '_selected[]' : '_available[]')) + '"]').first();
+
+        // Remove ones to be removed
+        $removeFrom.find('option:selected').each(function() {
+            $addTo.append('<option value="' + $(this).val() + '" selected="true">' + $(this).text() + '</option>');
+            $(this).remove();
+        });
+    });
+}
+
+
 window.addEventListener('load', function(){
     if (!document.body.classList.contains('admincustomhtmlpages') || allCustomHTMLPages == undefined)
         return;
@@ -53,5 +80,21 @@ window.addEventListener('load', function(){
 
     parentSelect.on('change', function() {
         updateURL();
+    });
+
+    $('[id="addSwap"]').each(function(){
+        // Remove ID and click binding (for if old swap has already been registered, or not yet registered)
+        $(this).removeAttr('id');
+        $(this).unbind('click');
+        betterSwapBinding($(this));
+
+    });
+
+    $('[id="removeSwap"]').each(function(){
+        // Remove ID and click binding (for if old swap has already been registered, or not yet registered)
+        $(this).removeAttr('id');
+        $(this).unbind('click');
+
+        betterSwapBinding($(this));
     });
 });

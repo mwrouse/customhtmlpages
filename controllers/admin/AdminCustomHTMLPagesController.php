@@ -189,8 +189,10 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
             $action = 'submitEditCustomHTMLPage';
 
             $pageId = Tools::getValue('id_page');
+
             $this->fields_value = $this->module->getHTMLPage($pageId);
 
+            // Remove the current page from the list of pages
             foreach ($allPages as $i => $p) {
                 if ($p != '-' && $p['id_page'] == $pageId) {
                     unset($allPages[$i]);
@@ -199,8 +201,7 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
             }
         }
         else {
-            $title = $this->l('New Page');
-            $action = 'submitAddCustomHTMLPage';
+
         }
 
         // Parent select
@@ -214,12 +215,34 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
                 'name' => 'name'
             ]
         ];
+        //$this->fields_value['id_relatedTo'] = [];
+
+        array_shift($allPages);
+
+        // List of Pages this Page is related to
+        $inputs[] = [
+            'type' => 'swap',
+            'label' => $this->l('Show On ($page->related[])'),
+            'multiple' => true,
+            'name' => 'id_relatedTo',
+            'options' => [
+                'query' => $allPages,
+                'id' => 'id_page',
+                'name' => 'name'
+            ],
+            'hint' => $this->l('Makes this page show up on other pages (not as a child page but as a related page): $page->related[]')
+        ];
+
+        $inputs[] = [
+            'type' => 'html',
+            'html_content' => '<hr/>Hey',
+            'name' => 'id_page',
+        ];
 
         // List of Products
         $products = Product::getProducts($lang->id, 0, 1000, 'id_product', 'ASC');
-        array_unshift($products, '-');
         $inputs[] = [
-            'type' => 'select',
+            'type' => 'swap',
             'label' => $this->l('Products ($product or $products)'),
             'name' => 'id_products',
             'multiple' => true,
@@ -231,6 +254,20 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
             'hint'     => $this->l('This will populate $products. If only one is selected then $product will be populated'),
         ];
 
+        // List of Categories
+        $categories = Category::getCategories($lang->id, true, false);
+        $inputs[] = [
+            'type' => 'swap',
+            'label' => $this->l('Categories ($category or $categories)'),
+            'name' => 'id_categories',
+            'multiple' => true,
+            'options' => [
+                'query' => $categories,
+                'id' => 'id_category',
+                'name' => 'name'
+            ],
+            'hint'     => $this->l('This will populate $categories. If only one is selected then $category will be populated'),
+        ];
 
         $this->fields_form = [
             'legend' => [
@@ -255,6 +292,7 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
             ],
 
         ];
+
 
         return parent::renderForm();
     }
@@ -302,7 +340,7 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
             $url = Tools::getValue('url');
             $parent = Tools::getValue('id_parent');
             $style = Tools::getValue('style');
-            $products = Tools::getValue('id_products', []);
+            $products = Tools::getValue('id_products_selected', []);
 
             $result = Db::getInstance()->insert(
                 $this->module->table_name,
@@ -323,6 +361,18 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
             else {
                 $pageId = Db::getInstance()->Insert_ID();
 
+                // Save related pages
+                $relatedPages = Tools::getValue('id_relatedTo_selected', []);
+                foreach ($relatedPages as $relatedPage)
+                {
+                    Db::getInstance()->insert($this->module->table_related,
+                    [
+                        'id_parent' => $relatedPage,
+                        'id_related' => $pageId
+                    ]);
+                }
+
+                // Save language content
                 foreach ($this->getLanguages() as $lang) {
                     $content = Tools::getValue('content_lang_' . $lang['id_lang']);
                     $metaTitle = Tools::getValue('meta_title_lang_'.$lang['id_lang']);
@@ -382,7 +432,7 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
             $url = Tools::getValue('url');
             $parent = Tools::getValue('id_parent');
             $style = Tools::getValue('style');
-            $products = Tools::getValue('id_products', []);
+            $products = Tools::getValue('id_products_selected', []);
 
             $result = Db::getInstance()->update($this->module->table_name,
                 [
@@ -400,6 +450,19 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
                 $this->_errors[] = $this->l('Error while updating Custom HTML Page Name and Status');
             }
             else {
+                // Save Related Pages
+                $relatedPages = Tools::getValue('id_relatedTo_selected', []);
+                if (count($relatedPages) > 0) {
+                    Db::getInstance()->delete($this->module->table_related, 'id_related='.$pageId);
+                    foreach ($relatedPages as $relatedPage) {
+                        Db::getInstance()->insert($this->module->table_related, [
+                            'id_parent' => $relatedPage,
+                            'id_related' => $pageId
+                        ]);
+                    }
+                }
+
+                // Save Language Content
                 foreach ($this->getLanguages() as $lang) {
                     $content = Tools::getValue('content_lang_' . $lang['id_lang']);
                     $metaTitle = Tools::getValue('meta_title_lang_'.$lang['id_lang']);
@@ -477,6 +540,7 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
 
         Db::getInstance()->delete($this->module->table_name, 'id_page='.$pageId);
         Db::getInstance()->delete($this->module->table_lang, 'id_page='.$pageId);
+        Db::getInstance()->delete($this->module->table_related, 'id_parent='.$pageId.' OR id_related='.$pageId);
 
         $this->redirect_after = static::$currentIndex.'&conf=1&token='.$this->token;
     }
