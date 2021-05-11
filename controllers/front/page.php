@@ -102,6 +102,13 @@ class CustomHtmlPagesPageModuleFrontController extends ModuleFrontController
 
         $page->content = $this->eval($page->content);
 
+        // Generate breadcrumbs
+        $breadcrumbs = $this->getBreadcrumbs($page);
+
+        $this->context->smarty->assign([
+            'path' => $breadcrumbs,
+        ]);
+
         return $this->setTemplate('page.tpl');
     }
 
@@ -132,8 +139,8 @@ class CustomHtmlPagesPageModuleFrontController extends ModuleFrontController
         $category = new Category($id, $lang->id, $shop->id);
 
         $category->subcategories = $category->getSubCategories($lang->id);
-        $category->products = $category->getProductsWs();
 
+        $category->products = $category->getProductsWs();
         for($i = 0; $i < count($category->products); $i++)
         {
             $category->products[$i] = $this->_GetProduct($category->products[$i]['id'], false);
@@ -146,5 +153,41 @@ class CustomHtmlPagesPageModuleFrontController extends ModuleFrontController
     private function eval($str)
     {
         return $this->context->smarty->fetch('eval:'.$str);
+    }
+
+
+    private function getBreadcrumbs($page)
+    {
+        $crumbs = $this->_getBreadcrumbs($page->parent);
+        $crumbs .= $page->meta_title;
+
+        return $crumbs;
+    }
+
+    private function _getBreadcrumbs($page)
+    {
+        if ($page == null) {
+            return '';
+        }
+
+        $before = $this->_getBreadcrumbs($page->parent);
+        if (!empty($before)) {
+            $pipe = Configuration::get('PS_NAVIGATION_PIPE');
+            if (empty($pipe))
+                $pipe = '>';
+            $before .= '<span class="navigation-pipe">'.$pipe.'</span>';
+        }
+
+        return $before.$this->_getBCLink($page);
+    }
+
+    private function _getBCLink($page)
+    {
+        if ($page == null)
+        {
+            return '';
+        }
+
+        return '<a href="'._PS_BASE_URL_.'/'.$page->url.'" title="'.$page->meta_title.'" data-gg="">'.$page->meta_title.'</a>';
     }
 }

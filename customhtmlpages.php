@@ -263,9 +263,10 @@ class CustomHTMLPages extends Module
      */
     public function getRouteForPage($page)
     {
+        $rule = $page->url;
         $route = [
             'controller' => 'page',
-            'rule' => $page->url.'{e:/}',
+            'rule' => $rule.'{e:/}',
             'keywords' => [
                 'e' => ['regexp' => '']
             ],
@@ -273,6 +274,7 @@ class CustomHTMLPages extends Module
                 'fc' => 'module',
                 'module' => $this->name,
                 'id_page' => $page->id,
+                'url' => $rule,
             ]
         ];
 

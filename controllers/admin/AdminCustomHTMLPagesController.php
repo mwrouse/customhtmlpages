@@ -456,8 +456,8 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
             else {
                 // Save Related Pages
                 $relatedPages = Tools::getValue('id_relatedTo_selected', []);
+                Db::getInstance()->delete($this->module->table_related, 'id_related='.$pageId);
                 if (count($relatedPages) > 0) {
-                    Db::getInstance()->delete($this->module->table_related, 'id_related='.$pageId);
                     foreach ($relatedPages as $relatedPage) {
                         Db::getInstance()->insert($this->module->table_related, [
                             'id_parent' => $relatedPage,
