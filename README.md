@@ -5,6 +5,13 @@ That's where this module *saves the day*!
 
 This module allows you to create custom pages by writing the HTML yourself. You can even use Smarty!!
 
+> **WARNING**
+>
+> This module is not for beginners!
+>
+> You should to be experienced with HTML/CSS and PHP to use this module as it can break your store for users
+
+&nbsp;
 
 ## `$page` Object
 In your custom pages you will have access to the `$page` object which will give you information about the page and child pages.
