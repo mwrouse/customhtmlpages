@@ -188,6 +188,6 @@ class CustomHtmlPagesPageModuleFrontController extends ModuleFrontController
             return '';
         }
 
-        return '<a href="'._PS_BASE_URL_.'/'.$page->url.'" title="'.$page->meta_title.'" data-gg="">'.$page->meta_title.'</a>';
+        return '<a href="'.$page->link.'" title="'.$page->meta_title.'" data-gg="">'.$page->meta_title.'</a>';
     }
 }

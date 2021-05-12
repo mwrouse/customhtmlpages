@@ -272,12 +272,18 @@ class CustomHTMLPages extends Module
         {
             $pages = $this->getAllHTMLPages();
             $allPages = $this->convertToClasses($pages);
+
+            $shopURL = $this->getShopURL($this->context);
+
+            $found = null;
             foreach ($allPages as $p) {
+                $p->link = $shopURL.$p->url;
                 if ($p->id == $pageId)
-                    return $p;
+                    $found = $p;
             }
 
-            return null;
+
+            return $found;
         }
         catch (Exception $e)
         {
@@ -312,6 +318,7 @@ class CustomHTMLPages extends Module
 
     /**
      * Returns the route rule for a page (recurses through parents)
+     * For displaying on the table page
      */
     public function getFullURLForPage(&$page, &$allPages)
     {
@@ -431,7 +438,7 @@ class CustomHTMLPages extends Module
         foreach ($pages as $page)
         {
             $id = $page['id_page'];
-            $classesById[$id] = new CustomHTMLPageModel($page);
+            $classesById[$id] = new CustomHTMLPageModel($page, $this->context);
         }
 
         // Populate children
@@ -478,13 +485,29 @@ class CustomHTMLPages extends Module
             }
         }
 
+        $url = $this->getShopURL($this->context);
+
         // Clear all parent links
         foreach ($classes as $page) {
-            $page->url = _PS_BASE_URL_.'/'.$page->url;
+            $page->url = $url.'/'.$page->url;
             $page->parent = null;
         }
 
         return $roots;
+    }
+
+
+    /**
+     * Gets the shop URL
+     */
+    private function getShopURL($context)
+    {
+        $url = 'http://'.$context->shop->domain;
+
+        if (isset($context->shop->domain_ssl) && !empty($context->shop->domain_ssl))
+            $url = 'https://'.$context->shop->domain_ssl;
+
+        return $url.'/';
     }
 
 
