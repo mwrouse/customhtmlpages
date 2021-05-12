@@ -33,7 +33,8 @@ class CustomHTMLPages extends Module
         // List of hooks
         $this->hooksList = [
             'displayBackOfficeHeader',
-            'moduleRoutes'
+            'moduleRoutes',
+            'displaySitemapPages', /* You must had {hook h='displaySitemapPages'} to your sitemap.tpl file if you want this to work */
         ];
 
         parent::__construct();
@@ -79,6 +80,28 @@ class CustomHTMLPages extends Module
         ]);
     }
 
+
+    /**
+     * Return Pages for the sitemap
+     */
+    public function hookDisplaySitemapPages()
+    {
+        $allPages = $this->getAllHTMLPages();
+        $tree = $this->convertToTree($allPages);
+
+        $this->context->smarty->assign([
+            'tree' => $tree,
+            'templatePath' => _PS_MODULE_DIR_.'/'.$this->name.'/views/templates/front/sitemap.tpl',
+        ]);
+
+        return $this->display(__FILE__, 'views/templates/front/sitemap.tpl');
+    }
+
+
+
+    /**********************************
+     *       Database Interface       *
+     **********************************/
 
     /**
      * Returns all of the HTML pages
@@ -151,30 +174,6 @@ class CustomHTMLPages extends Module
 
 
     /**
-     * Returns a single page as a class (for use in the page.php file)
-     */
-    public function getHTMLPageAsAClass($pageId)
-    {
-        try
-        {
-            $pages = $this->getAllHTMLPages();
-            $allPages = $this->convertToClasses($pages);
-            foreach ($allPages as $p) {
-                if ($p->id == $pageId)
-                    return $p;
-            }
-
-            return null;
-        }
-        catch (Exception $e)
-        {
-            Logger::addLog("CustomHTMLPages getHTMLPage Exception: {$e->getMessage()}");
-            return null;
-        }
-    }
-
-
-    /**
      * Returns the status of a single page
      */
     public function getHTMLPageStatus($pageId)
@@ -186,7 +185,6 @@ class CustomHTMLPages extends Module
 
         return $page['active'];
     }
-
 
 
     /**
@@ -258,6 +256,36 @@ class CustomHTMLPages extends Module
         }
     }
 
+
+
+
+    /****************************************
+     *       Helper/Utility Functions       *
+     ****************************************/
+
+    /**
+     * Returns a single page as a class (for use in the page.php file)
+     */
+    public function getHTMLPageAsAClass($pageId)
+    {
+        try
+        {
+            $pages = $this->getAllHTMLPages();
+            $allPages = $this->convertToClasses($pages);
+            foreach ($allPages as $p) {
+                if ($p->id == $pageId)
+                    return $p;
+            }
+
+            return null;
+        }
+        catch (Exception $e)
+        {
+            Logger::addLog("CustomHTMLPages getHTMLPage Exception: {$e->getMessage()}");
+            return null;
+        }
+    }
+
     /**
      * Returns the route
      */
@@ -322,7 +350,6 @@ class CustomHTMLPages extends Module
     {
         return 'customhtmlpages-page'.$page->id;
     }
-
 
 
     /**
@@ -429,6 +456,35 @@ class CustomHTMLPages extends Module
         }
 
         return $classesById;
+    }
+
+
+    /**
+     * Converts the pages to a tree for the sitemap
+     */
+    public function convertToTree($pages)
+    {
+        if (!is_array($pages) || count($pages) == 0)
+            return;
+
+        $classes = (gettype($pages[0]) == 'array') ? $this->convertToClasses($pages) : $pages;
+
+        $roots = [];
+
+        foreach ($classes as $page) {
+            $page->computeFullURL();
+            if ($page->parent == null) {
+                array_push($roots, $page);
+            }
+        }
+
+        // Clear all parent links
+        foreach ($classes as $page) {
+            $page->url = _PS_BASE_URL_.'/'.$page->url;
+            $page->parent = null;
+        }
+
+        return $roots;
     }
 
 

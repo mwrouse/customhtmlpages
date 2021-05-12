@@ -17,6 +17,7 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
         parent::__construct();
     }
 
+
     public function initPageHeaderToolbar()
     {
         if (empty($this->display) || $this->display =='list') {
