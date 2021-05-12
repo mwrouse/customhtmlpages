@@ -236,7 +236,7 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
 
         $inputs[] = [
             'type' => 'html',
-            'html_content' => '<hr/>Hey',
+            'html_content' => '<hr/>',
             'name' => 'id_page',
         ];
 
