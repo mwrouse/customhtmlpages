@@ -609,7 +609,7 @@ class CustomHTMLPages extends Module
      */
     private function _createDatabases()
     {
-        /*$sql = 'CREATE TABLE  `'._DB_PREFIX_.$this->table_name.'` (
+        $sql = 'CREATE TABLE  `'._DB_PREFIX_.$this->table_name.'` (
                     `id_page` INT( 12 ) AUTO_INCREMENT,
                     `id_lang` INT( 12 ) NOT NULL,
                     `id_shop` INT( 12 ) NOT NULL DEFAULT 1,
@@ -644,7 +644,7 @@ class CustomHTMLPages extends Module
         {
             return false;
         }
-        */
+
         return true;
     }
 
@@ -653,12 +653,12 @@ class CustomHTMLPages extends Module
      */
     private function _eraseDatabases()
     {
-        /*if ( ! Db::getInstance()->Execute('DROP TABLE `'._DB_PREFIX_.$this->table_name.'`') ||
+        if ( ! Db::getInstance()->Execute('DROP TABLE `'._DB_PREFIX_.$this->table_name.'`') ||
             ! Db::getInstance()->Execute('DROP TABLE `'._DB_PREFIX_.$this->table_lang.'`') ||
-            ! Db:;getInstance()->Execute('DROP TABLE`'._DB_PREFIX_.$this->table_related.'`'))
+            ! Db::getInstance()->Execute('DROP TABLE`'._DB_PREFIX_.$this->table_related.'`'))
         {
             return false;
-        }*/
+        }
 
         return true;
     }
