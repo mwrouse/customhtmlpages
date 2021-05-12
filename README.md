@@ -22,8 +22,6 @@ You have the following properties
 - `$page->url` (url path)
 - `$page->link` (full url including store domain)
 
-&nbsp;
-
 ## Children Pages (`$page->children[]`)
 When editing a page you have the option to set a parent page. This will make the page show up on `$page->children[]` *on the parent page* and will set `$page->parent` on the page you are editing (the *child page*).
 
@@ -35,7 +33,6 @@ Doing this will change the URL to the child page to include the URL of the paren
 > If you make Page A the parent of Page B then the URL to Page B will be
 > `foo/bar`
 
-&nbsp;
 
 ## Related Pages (`$page->related[]`)
 When editing a page you will have the option to set what pages the current page is related to.
@@ -55,8 +52,6 @@ It gives you the ability to set a one-to-many relationship by editing the *one* 
 > Making this relationship does not effect `$page->children[]` or `$page->parent` on either of the pages.
 
 
-&nbsp;
-
 ## Adding Categories (`$category` or `$categories[]`)
 On the edit page you have the ability to add one or more categories to the current page.
 
@@ -70,7 +65,6 @@ These are full category classes and will have a list of products under `$categor
 >
 > You can alternatively (and dynamically) add a single category to any page by adding the `id_category` parameter to the URL. This will populate the `$category` variable.
 
-&nbsp;
 
 ## Adding Products (`$product` or `$products[]`)
 On the edit page you have the ability to add one or more products to the current page.
@@ -86,12 +80,9 @@ These are full product classes.
 > You can alternatively (and dynamically) add a single product to any page by adding the `id_product` parameter to the URL. This will populate the `$product` variable.
 
 
-&nbsp;
-
 ## Breadcrumbs
 This module will automatically create breadcrumbs whenever you are on a page.
 
-&nbsp;
 
 ## Sitemap
 If you use your `sitemap.tpl` file (`/sitemap`) you can add your custom pages to it by modifying the `sitemap.tpl` file for your theme and adding the following hook:
@@ -100,3 +91,10 @@ If you use your `sitemap.tpl` file (`/sitemap`) you can add your custom pages to
 ```
 
 Add that hook to the *Pages** section of the `sitemap.tpl` file. Doing this will automatically add the trees for your pages.
+
+## Routes (and the 404 Page)
+This module generates routes based on your active pages. Only routes for pages will be generated.
+
+Since this module currently doesn't support rewrites in the page URLs, then there is no ambiguity in the routes. Therefore if you do not type a route correctly then you will get the 404 page!
+
+All generated routes have the ability to include an option `/` at the end. (so `foo/` and `foo` will go to the same page).
