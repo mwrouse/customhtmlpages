@@ -20,6 +20,8 @@ You have the following properties
 - `$page->related[]` (more on this later)
 - `$page->url` (url path)
 - `$page->link` (full url including store domain)
+- `$page->_products[]` (IDs of the products attached to the page)
+- `$page->_categories[]` (IDs of the categories attached to the page)
 
 ## Children Pages (`$page->children[]`)
 When editing a page you have the option to set a parent page. This will make the page show up on `$page->children[]` *on the parent page* and will set `$page->parent` on the page you are editing (the *child page*).
