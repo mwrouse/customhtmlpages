@@ -1,11 +1,10 @@
 # Thirty Bees Custom HTML Pages
-ThirtyBees module that allows you to take control over your shop.
+Let's face it, the CMS module in Thirty-Bees is pretty limited. And you're stuck with a limited layout without customization.
 
-Create custom HTML pages with custom URLs.
+That's where this module *saves the day*!
 
-It's like the CMS module, but better since you are not restricted to the template defined by the theme.
+This module allows you to create custom pages by writing the HTML yourself. You can even use Smarty!!
 
-You can even use Smarty on the pages!
 
 ## `$page` Object
 In your custom pages you will have access to the `$page` object which will give you information about the page and child pages.
