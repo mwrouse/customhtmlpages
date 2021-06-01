@@ -457,8 +457,11 @@ class CustomHTMLPages extends Module
             $relatedPages = $this->getRelatedPagesForPage($page['id_page']);
             foreach ($relatedPages as $relatedPage)
             {
-                $relatedPageClass = $classesById[$relatedPage];
-                $pageClass->addRelated($relatedPageClass);
+                if (array_key_exists($relatedPage, $classesById))
+                {
+                    $relatedPageClass = $classesById[$relatedPage];
+                    $pageClass->addRelated($relatedPageClass);
+                }
             }
         }
 
