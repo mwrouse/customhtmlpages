@@ -148,6 +148,13 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
             'required' => true,
             'hint'     => $this->l('Only letters and the hyphen (-) character are allowed.'),
         ];
+        $inputs[] = [
+            'type' => 'text',
+            'label' => $this->l('Breadcrumb URL Parameters'),
+            'name' => 'breadcrumb_parameters',
+            'required' => false,
+            'hint'     => $this->l('Parameters to be applied when rendering as a breadcrumb'),
+        ];
 
         $inputs[] = [
             'type'  => 'code',
@@ -339,6 +346,7 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
         else {
             $active = Tools::getValue('active');
             $url = Tools::getValue('url');
+            $breadcrumb_parameters = Tools::getValue('breadcrumb_parameters');
             $parent = Tools::getValue('id_parent');
             $style = Tools::getValue('style');
             $products = Tools::getValue('id_products_selected', []);
@@ -351,6 +359,7 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
                     'id_shop' => $shop,
                     'active' => $active,
                     'url' => $url,
+                    'breadcrumb_parameters' => $breadcrumb_parameters,
                     'style' => pSQL($style, true),
                     'id_parent' => $parent,
                     'id_products' => implode(',', $products),
@@ -433,25 +442,29 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
         else {
             $active = Tools::getValue('active');
             $url = Tools::getValue('url');
+            $breadcrumb_parameters = Tools::getValue('breadcrumb_parameters', 'hey');
             $parent = Tools::getValue('id_parent');
             $style = Tools::getValue('style');
             $products = Tools::getValue('id_products_selected', []);
             $categories = Tools::getValue('id_categories_selected', []);
 
+            error_log($breadcrumb_parameters);
             $result = Db::getInstance()->update($this->module->table_name,
                 [
                     'name' => pSQL($name),
                     'active' => $active,
                     'url' => $url,
+                    'breadcrumb_parameters' => pSQL($breadcrumb_parameters, true),
                     'style' => pSQL($style, true),
                     'id_parent' => $parent,
                     'id_products' => implode(',', $products),
-                    'id_categories' => implode(',', $categories),
+                    'id_categories' => implode(',', $categories)
                 ],
                 'id_page ='. (int)$pageId
             );
 
             if (!$result) {
+
                 $this->_errors[] = $this->l('Error while updating Custom HTML Page Name and Status');
             }
             else {

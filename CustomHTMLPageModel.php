@@ -22,6 +22,7 @@ class CustomHTMLPageModel extends ObjectModel
 
     public $url;
     public $link;
+    public $breadcrumb_parameters;
 
     public $css;
 
@@ -43,6 +44,7 @@ class CustomHTMLPageModel extends ObjectModel
         $this->link_rewrite = $raw['url'];
         $this->url = $raw['url'];
         $this->link = $raw['url'];
+        $this->breadcrumb_parameters = $raw['breadcrumb_parameters'] ?: '';
 
         $this->_products = (is_null($raw['id_products']) || empty($raw['id_products'])) ? [] : explode(',', $raw['id_products']);
         $this->_categories = (is_null($raw['id_categories']) || empty($raw['id_categories'])) ? [] : explode(',', $raw['id_categories']);

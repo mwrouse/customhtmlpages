@@ -82,13 +82,14 @@ class CustomHtmlPagesPageModuleFrontController extends ModuleFrontController
             }
         }
 
-        $this->context->smarty->assign([
+        $context = [
             'page' => $page,
             'product' => $product,
             'products' => $products,
             'category' => $category,
             'categories' => $categories,
-        ]);
+        ];
+        $this->context->smarty->assign($context);
 
         $page->meta_title = $this->eval($page->meta_title);
         $page->meta_description = $this->eval($page->meta_description);
@@ -188,6 +189,6 @@ class CustomHtmlPagesPageModuleFrontController extends ModuleFrontController
             return '';
         }
 
-        return '<a href="'.$page->link.'" title="'.$page->meta_title.'" data-gg="">'.$page->meta_title.'</a>';
+        return '<a href="'.$page->link.$this->eval($page->breadcrumb_parameters).'" title="'.$this->eval($page->meta_title).'" data-gg="">'.$this->eval($page->meta_title).'</a>';
     }
 }
