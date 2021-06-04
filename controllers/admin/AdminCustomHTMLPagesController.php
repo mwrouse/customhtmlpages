@@ -448,7 +448,6 @@ class AdminCustomHTMLPagesController extends ModuleAdminController
             $products = Tools::getValue('id_products_selected', []);
             $categories = Tools::getValue('id_categories_selected', []);
 
-            error_log($breadcrumb_parameters);
             $result = Db::getInstance()->update($this->module->table_name,
                 [
                     'name' => pSQL($name),
